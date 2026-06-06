@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DermaScan — Skin Condition Detector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-mark">DS</div>
+        <div>
+          <div class="logo-name">DermaScan</div>
+          <div class="logo-sub">AI Skin Analysis</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="pill pill-blue">Beta</span>
+        <span class="edu-tag">Educational Use Only</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">AI-Powered Dermatology Screening</div>
+      <h1 class="hero-title">Know Your<br><em>Skin Health</em></h1>
+      <p class="hero-desc">Upload or capture a photo of a skin lesion. Our AI model analyzes it instantly and classifies the condition.</p>
+      <div class="condition-row">
+        <div class="cond-chip cond-normal">Normal</div>
+        <div class="cond-chip cond-benign">Benign</div>
+        <div class="cond-chip cond-pre">Premalignant</div>
+        <div class="cond-chip cond-mal">Malignant</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="app-section">
+    <div class="container app-grid">
+
+      <div class="panel upload-panel">
+        <div class="panel-label">Step 01</div>
+        <h2 class="panel-title">Upload Image</h2>
+        <p class="panel-desc">Choose a clear, well-lit photo of the skin area you want to analyze.</p>
+
+        <div class="dropzone" id="dropzone" onclick="triggerUpload()">
+          <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(this.files[0])">
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden onchange="handleFile(this.files[0])">
+          <div class="dz-idle" id="dzIdle">
+            <div class="dz-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="dz-main">Drag & drop or click to upload</p>
+            <p class="dz-sub">JPG, PNG, WEBP — max 16MB</p>
+          </div>
+          <img id="previewImg" class="preview-img" src="" alt="" style="display:none">
+          <button class="change-photo-btn" id="changeBtn" style="display:none" onclick="resetUpload(event)">Change Photo</button>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Gallery
+          </button>
+          <button class="btn btn-ghost" onclick="document.getElementById('cameraInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Camera
+          </button>
+        </div>
+
+        <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()" disabled>
+          Analyze Now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+
+        <div class="loading-wrap" id="loadingWrap" style="display:none">
+          <div class="loading-bar"><div class="loading-fill"></div></div>
+          <p class="loading-text">Analyzing your image<span class="blink-dots"></span></p>
+        </div>
+      </div>
+
+      <div class="panel result-panel" id="resultPanel" style="display:none">
+        <div class="panel-label">Step 02</div>
+        <h2 class="panel-title">Result</h2>
+        <div class="result-card">
+          <div class="result-top" id="resultTop">
+            <div class="result-icon" id="resultIcon"></div>
+            <div class="result-info">
+              <div class="result-name" id="resultName">—</div>
+              <div class="result-risk" id="resultRisk">—</div>
+            </div>
+            <div class="result-conf">
+              <div class="conf-num" id="confNum">—</div>
+              <div class="conf-lbl">confidence</div>
+            </div>
+          </div>
+          <p class="result-desc" id="resultDesc"></p>
+          <div class="advice-box" id="adviceBox"></div>
+          <div class="bars-wrap">
+            <div class="bars-label">Classification Scores</div>
+            <div id="barsContainer"></div>
+          </div>
+          <div class="disclaimer" id="disclaimer"></div>
+        </div>
+        <button class="btn btn-ghost mt-12" onclick="resetAll()">← Analyze Another</button>
+      </div>
+
+      <div class="panel empty-panel" id="emptyPanel">
+        <div class="empty-inner">
+          <div class="empty-icon">🔬</div>
+          <p class="empty-title">Awaiting Analysis</p>
+          <p class="empty-sub">Upload an image on the left to see results here.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="container">
+      <div class="section-label">What We Detect</div>
+      <h2 class="section-title">Four Skin Conditions</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-dot" style="background:#2563eb"></div>
+          <h3>Normal</h3>
+          <p>Healthy skin with no visible lesions or abnormalities detected.</p>
+          <div class="info-tag" style="color:#2563eb;background:#eff6ff;border-color:#bfdbfe">No Risk</div>
+        </div>
+        <div class="info-card">
+          <div class="info-dot" style="background:#059669"></div>
+          <h3>Benign</h3>
+          <p>A non-cancerous growth. Harmless but should be monitored annually.</p>
+          <div class="info-tag" style="color:#059669;background:#ecfdf5;border-color:#a7f3d0">Low Risk</div>
+        </div>
+        <div class="info-card">
+          <div class="info-dot" style="background:#d97706"></div>
+          <h3>Premalignant</h3>
+          <p>Early abnormal cells that may turn cancerous. Needs prompt evaluation.</p>
+          <div class="info-tag" style="color:#d97706;background:#fffbeb;border-color:#fde68a">Medium Risk</div>
+        </div>
+        <div class="info-card">
+          <div class="info-dot" style="background:#dc2626"></div>
+          <h3>Malignant</h3>
+          <p>Cancerous lesion. Requires immediate medical attention.</p>
+          <div class="info-tag" style="color:#dc2626;background:#fef2f2;border-color:#fecaca">High Risk</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">DermaScan AI</div>
+      <p class="footer-text">For educational purposes only. This tool does <strong>NOT</strong> replace professional medical diagnosis. Always consult a licensed dermatologist.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

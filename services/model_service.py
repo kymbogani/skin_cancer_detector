@@ -15,7 +15,7 @@ class ModelService:
 
     def __init__(self):
         print("Loading model...")
-        self._model = load_model(Config.MODEL_PATH)
+        self._model = load_model(Config.MODEL_PATH, compile=False)
         print("Model loaded!")
 
         with open(Config.CLASSES_PATH, "rb") as f:

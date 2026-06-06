@@ -51,3 +51,94 @@ Files to download:
 ✅ skin_cancer_model.keras
 ✅ label_classes.pkl
 ✅ class_indices.pkl
+
+
+---
+
+## 🚀 How to Run the App
+
+### Step 1 — Clone the project to your computer
+Open terminal or command prompt and run:
+```bash
+git clone https://github.com/kymbogani/skin_cancer_detector.git
+```
+
+---
+
+### Step 2 — Open the project folder
+```bash
+cd skin_cancer_detector
+```
+
+---
+
+### Step 3 — Create a virtual environment
+```bash
+python -m venv venv
+```
+
+---
+
+### Step 4 — Activate the virtual environment
+
+**If you are on Windows:**
+```bash
+venv\Scripts\activate
+```
+
+**If you are on Mac or Linux:**
+```bash
+source venv/bin/activate
+```
+
+After activation you will see **(venv)** in your terminal like this:
+(venv) C:\Users\yourname\skin_cancer_detector>
+
+---
+
+### Step 5 — Install required packages
+```bash
+pip install -r requirements.txt
+```
+Wait for it to finish installing. This may take a few minutes.
+
+---
+
+### Step 6 — Place the model files
+
+Take the 3 files you downloaded from Kaggle and put them inside the **model** folder:
+skin_cancer_detector/
+└── model/
+├── skin_cancer_model.keras   ← paste here
+├── label_classes.pkl         ← paste here
+└── class_indices.pkl         ← paste here
+
+---
+
+### Step 7 — Start the app
+```bash
+python app.py
+```
+
+You will see this message when it is ready:
+Loading model...
+Model loaded!
+Classes: ['Benign', 'Malignant', 'Premalignant']
+
+Running on http://localhost:5000
+
+---
+
+### Step 8 — Open in your browser
+
+Type this in your browser address bar:
+
+🎉 The app is now running and ready to use!
+
+---
+
+## 🛑 To Stop the App
+
+Go back to terminal and press:
+
+Ctrl + C
